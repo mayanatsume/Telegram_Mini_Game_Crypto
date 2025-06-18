@@ -441,8 +441,8 @@
     </div>
 
     <!-- Template da Imagem +1 e +2 para Clonar -->
-    <img id="plus-one-template" src="/Static/Images/plus-one.png" class="plus-one" style="display: none;">
-    <img id="plus-two-template" src="/Static/Images/plus-two.png" class="plus-two" style="display: none;">
+    <img id="plus-one-template" src="Static/Images/plus-one.png" class="plus-one" style="display: none;">
+    <img id="plus-two-template" src="Static/Images/plus-two.png" class="plus-two" style="display: none;">
 
 
     <!-- Script do Firebase e Lógica do Jogo -->
@@ -514,7 +514,7 @@ async function criarNovoUsuario() {
 // Função para exibir o efeito de corte da espada
 function exibirCorteEspada(x, y) {
     const swordEffect = document.createElement('img');
-    swordEffect.src = '/Static/Images/sword-slash.gif'; // Caminho para o GIF do efeito de espada
+    swordEffect.src = 'Static/Images/sword-slash.gif'; // Caminho para o GIF do efeito de espada
     swordEffect.classList.add('sword-slash'); // Adiciona a classe CSS para estilização
     swordEffect.style.position = 'absolute';
     swordEffect.style.left = `${x - 20}px`; // Ajuste para posicionar a imagem
