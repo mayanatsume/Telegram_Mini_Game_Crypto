@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks Page</title>
+    <style>
+          /* Estilos principais para o corpo da página */
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to right, rgb(14, 14, 14), rgb(222, 3, 3));
+            overflow: hidden; /* Impede rolagem */
+            transform: scale(1) scaleX(1); /* Aplica scale uniforme e scaleX para expandir lateralmente */
+            transform-origin: top; /* Fixa a origem das transformações no topo da página */
+        }
+ 
+
+
+        /* Contêiner principal com posicionamento manual */
+        .mobile-container {
+            width: 450px; /* Ajuste manual da largura */
+            height: 700px; /* Ajuste manual da altura */
+            position: absolute; /* Posição absoluta */
+            top: 55%; /* Centraliza verticalmente */
+            left: 50%; /* Centraliza horizontalmente */
+            transform: translate(-50%, -50%); /* Garante centralização perfeita */
+            background: url('/Static/Images/bck-dog.png') no-repeat center center; /* Imagem de fundo */
+            background-size: cover; /* A imagem cobre toda a área */
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra leve */
+            box-sizing: border-box; /* Inclui o padding no cálculo da largura e altura */
+            padding: 16px;
+            overflow: hidden; /* Impede que o conteúdo cause rolagem */
+        }
+
+        /* Imagem no topo (tasks-earn.png) */
+        .tasks-earn-header {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 340px;
+            height: 270px;
+            background-image: url('/Static/Images/tasks-earn.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        /* Lista de Tarefas com barra de rolagem oculta */
+        .task-list-container {
+            width: 70%;
+            height: 320px;
+            overflow-y: auto;
+            position: absolute;
+            top: 310px;
+            left: 13%;
+            margin: 0;
+        }
+
+        .task-list-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .task-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Estilo dos itens da lista de tarefas */
+        .task-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: linear-gradient(to bottom, orange, #ff6600);
+            border-radius: 12px;
+            display: flex;
+            justify-content: flex-start; /* Altera para alinhar os itens à esquerda */
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+        }
+
+        /* Estilo do texto dentro dos botões */
+        .task-text {
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Estilo dos pontos dentro dos botões */
+        .task-points {
+            color: white;
+            font-weight: bold;
+            margin-left: 5px; /* Espaço entre o texto e os pontos */
+        }
+
+        /* Efeito de Texto 3D para "Points Earned" */
+        .points-earned-container {
+            position: absolute;
+            top: 250px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px #000000;
+            white-space: nowrap;
+            z-index: 10;
+            width: auto;
+        }
+
+        /* Botão de Voltar (X) */
+        .back-button {
+            position: absolute;
+            top: 40px;
+            left: 90px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        /* Estilo do Loading e Tique Verde */
+        .loading-circle {
+            width: 20px;
+            height: 20px;
+            border: 3px solid white;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+            position: absolute;
+            right: 10px;
+        }
+
+        .done-tick {
+            color: #28a745;
+            font-size: 18px;
+            position: absolute;
+            right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-container">
+
+        <!-- Botão de Voltar (X) -->
+        <div class="back-button" onclick="window.location.href='index.html'">X</div>
+
+        <!-- Imagem tasks-earn.png no topo -->
+        <div class="tasks-earn-header"></div>
+
+        <!-- Imagem tasks-button.png logo abaixo -->
+        <div class="tasks-header"></div>
+
+        <!-- Caixa "Points Earned" com efeito 3D -->
+        <div class="points-earned-container">
+            Points Earned: <span id="points-total">0</span> Points
+        </div>
+
+        <!-- Container com barra de rolagem para a lista de Tarefas -->
+        <div class="task-list-container">
+            <ul class="task-list" id="task-list">
+                <li class="task-item" data-points="10" data-link="https://twitter.com">
+                    <span class="task-text">Follow our CEO</span><span class="task-points">-10 Points</span>
+                </li>
+                <li class="task-item" data-points="15" data-link="https://youtube.com">
+                    <span class="task-text">Watch our YouTube video</span><span class="task-points">-15 Points</span>
+                </li>                
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let totalPoints = 0;
+
+        // Função para adicionar pontos e iniciar animação
+        document.querySelectorAll('.task-item').forEach(item => {
+            item.addEventListener('click', function () {
+                const points = parseInt(this.dataset.points);
+                const taskLink = this.dataset.link;
+
+                // Adiciona os pontos e atualiza o total
+                totalPoints += points;
+                document.getElementById('points-total').innerText = totalPoints;
+
+                // Redireciona imediatamente para o link da tarefa
+                window.open(taskLink, '_blank');
+
+                // Iniciar animação de loading por 2 segundos
+                const loadingCircle = document.createElement('div');
+                loadingCircle.classList.add('loading-circle');
+                this.appendChild(loadingCircle);
+
+                // Exibe o tique verde após o loading
+                setTimeout(() => {
+                    loadingCircle.remove();
+
+                    const doneTick = document.createElement('div');
+                    doneTick.classList.add('done-tick');
+                    doneTick.innerText = '✔';
+                    this.appendChild(doneTick);
+
+                    // Desabilitar a tarefa após concluída
+                    this.style.pointerEvents = 'none';
+                    this.style.opacity = '0.6';
+
+                    // Adiciona os pontos ao total da página home.html
+                    localStorage.setItem('earnedPoints', totalPoints);
+                }, 2000);
+            });
+        });
+
+        // Função para atualizar os pontos na página home.html
+        window.addEventListener('load', () => {
+            const savedPoints = localStorage.getItem('earnedPoints');
+            if (savedPoints) {
+                document.getElementById('points-total').innerText = savedPoints;
+            }
+        });
+    </script>
+
+</body>
+</html>
+
+

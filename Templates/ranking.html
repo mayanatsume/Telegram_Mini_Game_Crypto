@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking Page</title>
+    <style>
+          /* Estilos principais para o corpo da página */
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to right, rgb(14, 14, 14), rgb(222, 3, 3));
+            overflow: hidden; /* Impede rolagem */
+            transform: scale(1) scaleX(1); /* Aplica scale uniforme e scaleX para expandir lateralmente */
+            transform-origin: top; /* Fixa a origem das transformações no topo da página */
+    }
+
+
+
+        /* Contêiner principal com posicionamento manual */
+        .mobile-container {
+            width: 450px; /* Ajuste manual da largura */
+            height: 700px; /* Ajuste manual da altura */
+            position: absolute; /* Posição absoluta */
+            top: 55%; /* Centraliza verticalmente */
+            left: 50%; /* Centraliza horizontalmente */
+            transform: translate(-50%, -50%); /* Garante centralização perfeita */
+            background: url('/Static/Images/bck-dog.png') no-repeat center center; /* Imagem de fundo */
+            background-size: cover; /* A imagem cobre toda a área */
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra leve */
+            box-sizing: border-box; /* Inclui o padding no cálculo da largura e altura */
+            padding: 16px;
+            overflow: hidden; /* Impede que o conteúdo cause rolagem */
+        }
+
+        /* Imagem de topo (ranking-page.png) */
+        .ranking-header {
+            position: absolute;
+            top: 80px;
+            left: 80%;
+            transform: translateX(-50%);
+            width: 550px;
+            height: 200px;
+            background-image: url('/Static/Images/ranking-page.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        /* Botão de voltar (X) */
+        .back-button {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Efeito de texto 3D para o título da liga */
+        .league-title {
+            position: absolute;
+            top: 130px;
+            left: 58%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 3px 3px 6px #000000, -1px -1px 2px #FF6600;
+            text-align: center;
+            line-height: 1.2; /* Ajuste para exibir em duas linhas */
+        }
+
+        /* Container da lista de ranking */
+        .ranking-list-container {
+            width: 90%;
+            height: 380px;
+            overflow-y: auto; /* Habilita rolagem vertical */
+            position: absolute;
+            top: 260px; /* Ajuste conforme necessário */
+            left: 5%;
+            margin: 0;
+            background-color: transparent; /* Invisível */
+        }
+
+        .ranking-list-container::-webkit-scrollbar {
+            display: none; /* Oculta a barra de rolagem */
+        }
+
+        .ranking-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .ranking-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: transparent;
+            border: 2px solid orange;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            position: relative;
+            animation: glow 2s infinite alternate;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        /* Animação de brilho nos itens */
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px red;
+            }
+            100% {
+                box-shadow: 0 0 20px red;
+            }
+        }
+
+        /* Estilo para a imagem de medalha */
+        .medal-icon {
+            width: 40px;
+            height: 40px;
+            background-image: url('/Static/Images/medal.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        /* Estilo dos nomes e pontos dos jogadores */
+        .player-name {
+            font-size: 18px;
+            color: white;
+        }
+
+        .player-points {
+            font-size: 18px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Botão de voltar -->
+        <div class="back-button" onclick="window.location.href='index.html'">X</div>
+
+        <!-- Imagem de topo (ranking-page.png) -->
+        <div class="ranking-header"></div>
+
+        <!-- Título da Liga com efeito 3D -->
+        <div class="league-title" id="league-title">Bronze League<br>Top 100</div>
+
+        <!-- Container com barra de rolagem invisível para a lista de ranking -->
+        <div class="ranking-list-container">
+            <ul class="ranking-list" id="ranking-list">
+                <!-- Exemplo de itens no ranking -->
+                <li class="ranking-item">
+                    <div class="medal-icon"></div>
+                    <span class="player-name">Player 1</span>
+                    <span class="player-points">1500 Points</span>
+                </li>
+                <li class="ranking-item">
+                    <div class="medal-icon"></div>
+                    <span class="player-name">Player 2</span>
+                    <span class="player-points">1400 Points</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Simulando a recuperação da liga atual da página home.html
+        let league = localStorage.getItem('userLeague') || "Bronze"; // Liga salva no localStorage
+
+        const rankingData = {
+            Bronze: [
+                { name: "Player 1", points: 1500 },
+                { name: "Player 2", points: 1400 },
+            ],
+            Silver: [
+                { name: "Player A", points: 1600 },
+                { name: "Player B", points: 1550 },
+            ],
+        };
+
+        function atualizarRanking() {
+            const leagueTitle = document.getElementById("league-title");
+            const rankingList = document.getElementById("ranking-list");
+
+            // Atualiza o título da liga
+            leagueTitle.innerHTML = `${league} League<br>Top 100`;
+
+            // Limpa a lista de ranking
+            rankingList.innerHTML = '';
+
+            // Adiciona os jogadores da liga selecionada
+            const players = rankingData[league];
+            players.forEach(player => {
+                const rankingItem = document.createElement("li");
+                rankingItem.classList.add("ranking-item");
+
+                const medalIcon = document.createElement("div");
+                medalIcon.classList.add("medal-icon");
+
+                const playerName = document.createElement("span");
+                playerName.classList.add("player-name");
+                playerName.innerText = player.name;
+
+                const playerPoints = document.createElement("span");
+                playerPoints.classList.add("player-points");
+                playerPoints.innerText = `${player.points} Points`;
+
+                rankingItem.appendChild(medalIcon);
+                rankingItem.appendChild(playerName);
+                rankingItem.appendChild(playerPoints);
+                rankingList.appendChild(rankingItem);
+            });
+        }
+
+        // Inicializa o ranking na liga atual do jogador
+        atualizarRanking();
+    </script>
+
+</body>
+</html>
+

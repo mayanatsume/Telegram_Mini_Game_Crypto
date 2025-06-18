@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends Page</title>
+    <style>
+          /* Estilos principais para o corpo da página */
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to right, rgb(14, 14, 14), rgb(222, 3, 3));
+            overflow: hidden; /* Impede rolagem */
+            transform: scale(1) scaleX(1); /* Aplica scale uniforme e scaleX para expandir lateralmente */
+            transform-origin: top; /* Fixa a origem das transformações no topo da página */
+    }
+
+
+        /* Contêiner principal com posicionamento manual */
+        .mobile-container {
+            width: 450px; /* Ajuste manual da largura */
+            height: 700px; /* Ajuste manual da altura */
+            position: absolute; /* Posição absoluta */
+            top: 55%; /* Centraliza verticalmente */
+            left: 50%; /* Centraliza horizontalmente */
+            transform: translate(-50%, -50%); /* Garante centralização perfeita */
+            background: url('/Static/Images/bck-dog.png') no-repeat center center; /* Imagem de fundo */
+            background-size: cover; /* A imagem cobre toda a área */
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra leve */
+            box-sizing: border-box; /* Inclui o padding no cálculo da largura e altura */
+            padding: 16px;
+            overflow: hidden; /* Impede que o conteúdo cause rolagem */
+        }
+
+        /* Caixa de texto "Points From Invites" */
+        .points-invites-box {
+            position: absolute;
+            top: 220px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            height: 50px;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-shadow: 2px 2px 4px #000000;
+        }
+
+        /* Estilo para o número de pontos */
+        .points-value {
+            font-size: 32px;
+            color: orange;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #000000;
+        }
+
+        /* Botão "List of Friends" com gradiente laranja */
+        .list-friends-button {
+            position: absolute;
+            top: 280px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            height: 50px;
+            background: linear-gradient(to bottom, orange, #ff6600);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 50px;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Imagem "Invite a Friend and Earn 500 Points" */
+        .invite-box-image {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 340px;
+            height: 270px;
+            background-image: url('/Static/Images/invite500.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        /* Estilo dos itens da lista de amigos */
+        .friend-item {
+            position: relative;
+            top: 340px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: transparent;
+            border: 2px solid gold;
+            border-radius: 12px;
+            padding: 10px;
+            color: white;
+            width: 260px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Botão "Invite a Friend" com gradiente laranja */
+        .invite-button {
+            position: absolute;
+            top: 540px;
+            left: 43%;
+            transform: translateX(-50%);
+            width: 230px;
+            height: 50px;
+            background: linear-gradient(to bottom, orange, #ff6600);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 50px;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+       /* Botão "Copiar Link" redondo com controle de tamanho da imagem */
+        .copy-link-button {
+             position: absolute;
+             top: 540px;
+             left: 77%; /* Centraliza horizontalmente */
+             transform: translateX(-50%);
+             width: 50px;
+             height: 50px;
+             background: white; /* Fundo branco */
+             background-image: url('/Static/Images/copy-button.png'); /* Caminho da imagem */
+             background-size: 245%; /* Controle do "zoom" da imagem (ajuste conforme necessário) */
+             background-repeat: no-repeat;
+             background-position: center;
+             border: 2px solid orange; /* Borda laranja */
+             border-radius: 50%; /* Botão redondo */
+             cursor: pointer;
+         }
+
+        /* Remove qualquer conteúdo adicional */
+        .copy-link-button::before {
+             content: none;
+        }
+      
+        /* Botão para fechar a página (ícone X) */
+        .close-icon {
+            position: absolute;
+            top: 40px;
+            right: 330px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-container">
+
+        <!-- Ícone X para fechar e voltar à página home -->
+        <div class="close-icon" onclick="window.location.href='index.html'">X</div>
+
+        <!-- Imagem do Friends no topo da página -->
+        <div class="friends-header"></div>
+
+        <!-- Imagem "Invite a Friend and Earn 500 Points" -->
+        <div class="invite-box-image"></div>
+
+        <!-- Caixa de exibição de pontos ganhos por convites -->
+        <div class="points-invites-box">
+            <span>Points From Invites:</span>
+            <span class="points-value">500</span>
+        </div>
+
+        <!-- Botão "List of Friends" com gradiente laranja -->
+        <div class="list-friends-button">List of Friends</div>
+
+        <!-- Lista de amigos convidados -->
+        <div class="friend-item">Friend 1 (Telegram)</div>
+        <div class="friend-item">Friend 2 (Telegram)</div>
+        <div class="friend-item">Friend 3 (Telegram)</div>
+
+        <!-- Botão "Invite a Friend" com gradiente laranja -->
+        <div class="invite-button" onclick="inviteFriend()">Invite a Friend Here</div>
+
+        <!-- Botão "Copiar Link" -->
+        <div class="copy-link-button" onclick="copyLink()"></div>
+
+    </div>
+
+    <script>
+        // Função que simula o convite de um amigo
+        function inviteFriend() {
+            alert("Abrir opções de convite de amigo...");
+        }
+
+        // Função que simula a cópia de link para convite
+        function copyLink() {
+            alert("Link copiado!");
+        }
+    </script>
+
+</body>
+</html>
+
+

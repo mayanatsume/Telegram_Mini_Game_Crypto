@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Cabeçalho -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Tap to Earn - Mini Game</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+       /* Estilos principais para o corpo da página */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to right, rgb(14, 14, 14), rgb(222, 3, 3));
+            overflow: hidden; /* Impede rolagem */
+            transform: scale(1) scaleX(1); /* Aplica scale uniforme e scaleX para expandir lateralmente */
+            transform-origin: top; /* Fixa a origem das transformações no topo da página */
+    }
+
+
+
+        /* Contêiner principal com posicionamento manual */
+        .mobile-container {
+            width: 450px; /* Ajuste manual da largura */
+            height: 700px; /* Ajuste manual da altura */
+            position: absolute; /* Posição absoluta */
+            top: 55%; /* Centraliza verticalmente */
+            left: 50%; /* Centraliza horizontalmente */
+            transform: translate(-50%, -50%); /* Garante centralização perfeita */
+            background: url('/Static/Images/bck-dog.png') no-repeat center center; /* Imagem de fundo */
+            background-size: cover; /* A imagem cobre toda a área */
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra leve */
+            box-sizing: border-box; /* Inclui o padding no cálculo da largura e altura */
+            padding: 16px;
+            overflow: hidden; /* Impede que o conteúdo cause rolagem */
+        }
+        
+
+        /* Caixa de Exibição do Nome do Usuário */
+        .telegram-user-button {
+            position: absolute;
+            top: 5%; /* Altera a distância do topo */
+            left: 40%; /* Centraliza horizontalmente */
+            transform: translateX(-50%);
+            width: 90%; /* Largura responsiva */
+            max-width: 250px;
+            height: 40px;
+            background-color: rgb(56, 2, 2);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: orange;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+
+        /* Caixa de Texto para Pontos, Liga e Contador de Cliques */
+        .points-box, .click-counter, .league-box {
+            position: absolute;
+            font-size: 30px;
+            font-weight: bold;
+            color: orange;
+            text-align: center;
+            background-color: transparent;
+            text-shadow: 2px 2px 4px #000000;
+            font-family: 'Monaco', monospace; /* Fonte Monaco */
+        }
+
+        .points-box {
+            top: 155px;
+            left: 150px;
+            width: 120px;
+            height: 40px;
+        }
+
+        .league-box {
+            top: 100px;
+            left: 155px;
+            width: 120px;
+            height: 40px;
+        }
+
+        .click-counter {
+            font-size: 24px;
+            top: 450px;
+            left: 70px;
+        }
+
+        /* Imagem da Moeda Fixa ao Lado da Caixa de Pontos */
+        .coin-image-next-to-points {
+            position: absolute;
+            top: 140px;
+            left: 130px;
+            width:100px;
+            height: 60px;
+            background-image: url('/Static/Images/dogcoin.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        /* Círculo com o Cachorro */
+        .dog-circle {
+            position: absolute;
+            top: 200px;
+            left: 100px;
+            width: 230px;
+            height: 230px;
+            background-color:orange;
+            border: 5px solid darkred;
+            border-radius: 50%;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 0 15px red;
+            animation: glow-pulse 2s infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.1s ease-in-out;
+        }
+
+        /* Efeito de pulsar ao clicar */
+        .dog-circle:active {
+            animation: click-pulse 0.2s forwards;
+        }
+
+        @keyframes glow-pulse {
+            0% {
+                box-shadow: 0 0 5px red;
+            }
+            50% {
+                box-shadow: 0 0 20px red;
+            }
+            100% {
+                box-shadow: 0 0 5px red;
+            }
+        }
+
+        @keyframes click-pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Imagem do Cachorro dentro do Círculo */
+        .dog-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Barra de Energia Laranja */
+        .energy-container {
+            position: absolute;
+            top: 440px;
+            left: 70px;
+            width: 100px;
+            height: 10px;
+            background-color: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .energy-bar {
+            height: 100%;
+            width: 100%;
+            background-color: orange;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        /* Barra Transparente Atrás dos Botões */
+        .button-background {
+            position: absolute;
+            top: 520px;
+            left: 40px;
+            width: 80%;
+            height: 70px;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            border-radius: 12px;
+        }
+
+        /* Botões com Efeito de Brilho Pulsante */
+        .glow-button {
+            width: 110px;
+            height: 40px;
+            border: none;
+            outline: none;
+            border-radius: 10px;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            z-index: 2;
+            overflow: visible;
+            position: absolute;
+            transition: box-shadow 0.3s ease-in-out;
+            animation: pulse-glow 2s infinite;
+        }
+
+        /* Animação do Brilho Pulsante */
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 5px red;
+            }
+            50% {
+                box-shadow: 0 0 20px red;
+            }
+            100% {
+                box-shadow: 0 0 5px red;
+            }
+        }
+
+        /* Ajustes dos Botões com Suas Imagens */
+        .league-button {
+            top: 90px;
+            left: 70px;
+            width: 90px;
+            height: 50px;
+            background-image: url('/Static/Images/league-button.png');
+            background-color: rgb(56, 2, 2); /* Torna o fundo transparente */
+        }
+
+        .friends-button {
+            top: 530px;
+            left: 70px;
+            width: 70px;
+            height: 50px;
+            background-image: url('/Static/Images/friends-button.png');
+        }
+
+        .ranking-button {
+            top: 90px;
+            left: 290px;
+            width: 90px;
+            height: 50px;
+            background-image: url('/Static/Images/ranking-button.png');
+            background-color: rgb(56, 2, 2); /* Torna o fundo transparente */
+        }
+
+        .tasks-button {
+            top: 530px;
+            left: 140px;
+            width: 70px;
+            height: 50px;
+            background-image: url('/Static/Images/tasks-button.png');
+        }
+
+        .wallet-button {
+            top: 530px;
+            left: 220px;
+            width: 70px;
+            height: 50px;
+            background-image: url('/Static/Images/wallet-button.png');
+        }
+
+        .games-button {
+            top: 530px;
+            left: 300px;
+            width: 70px;
+            height: 50px;
+            background-image: url('/Static/Images/games-button.png');
+        }
+
+        .booster-button {
+            top: 440px;
+            left: 270px;
+            width: 90px;
+            height: 50px;
+            background-image: url('/Static/Images/boost-button.png');
+            background-color: rgb(56, 2, 2); /* Torna o fundo transparente */
+            text-indent: -9999px;
+        }
+
+        /* Estilo para o efeito de corte de espada */
+         .sword-slash {
+             width: 70px; /* Ajuste o tamanho conforme necessário */
+             height: 70px; /* Ajuste o tamanho conforme necessário */
+             position: absolute;
+             pointer-events: none;
+             z-index: 1000;
+        }
+
+         
+        /* Animação para +1 e +2 */
+        .plus-one, .plus-two {
+            position: absolute;
+            top: 43%;
+            left: 55%; /* Ajuste a posição conforme necessário */
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 1;
+            animation: fade-out 2s forwards;
+        }
+
+        /* Animação de Fade-out */
+        @keyframes fade-out {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, 430%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -200%) scale(1.2);
+            }
+        }
+
+        /* Imagem da Moeda Animada ao Clicar */
+        .coin-image-moving {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-image: url('/Static/Images/coin.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            opacity: 1;
+            animation: move-coin 1s forwards;
+            z-index: 1000;
+        }
+
+
+        /* Animação para a moeda */
+        @keyframes move-coin {
+    0% {
+        top: 380px;   /* Posição inicial no eixo Y */
+        left: 1000px;  /* Posição inicial no eixo X (perto do cachorro) */
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        top: 270px;   /* Mesma posição no eixo Y para movimento horizontal */
+        left: 780px;  /* Posição final no eixo X (perto da caixa de pontos) */
+        opacity: 0;
+        transform: scale(0.5);
+    }
+}
+
+
+    </style>
+</head>
+<body>
+
+    <div class="mobile-container">
+        <!-- Botão para Exibir o Nome do Usuário -->
+        <button class="telegram-user-button" id="telegram-user-button">Welcome, User!</button>
+   
+    
+    <!-- Certifique-se de incluir o script da API do Telegram -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- JavaScript para alterar o texto do botão -->
+    <script>
+      // Inicializa a API do Telegram
+      Telegram.WebApp.ready();
+    
+     // Obtém os dados do usuário do Telegram
+     const user = Telegram.WebApp.initDataUnsafe.user;
+
+      async function salvarPontos(username, pontos, cliquesRestantes) {
+    try {
+        await db.collection('users').doc(username).update({
+            pontos: pontos,
+            cliquesRestantes: cliquesRestantes
+        });
+    } catch (error) {
+        console.error("Erro ao salvar pontos:", error);
+    }
+}
+    
+      // Verifica se o usuário está logado e tem um nome de usuário
+      if (user && user.username) {
+        // Atualiza o texto do botão para mostrar o nome do usuário
+        document.getElementById('telegram-user-button').innerHTML = `Welcome, @${user.username}!`;
+      } else {
+        // Caso o nome de usuário não esteja disponível, mostra "Guest"
+        document.getElementById('telegram-user-button').innerHTML = 'Welcome, Guest!';
+      }
+    </script>
+
+        <!-- Caixa de Texto para Mostrar a Contagem de Pontos -->
+        <div class="points-box" id="points-box">0</div>
+
+        <!-- Imagem da Moeda Fixa ao Lado da Caixa de Pontos -->
+        <div class="coin-image-next-to-points"></div>
+
+        <!-- Caixa de Texto para Mostrar a Liga -->
+        <div class="league-box" id="league-box">Bronze</div>
+
+        <!-- Círculo com o Cachorro -->
+        <div class="dog-circle">
+            <img class="dog-image" src="/Static/Images/kenshin.png" alt="Cachorro">
+        </div>
+
+        <!-- Barra de Energia Laranja -->
+        <div class="energy-container">
+            <div class="energy-bar" id="energy-bar"></div>
+        </div>
+
+        <!-- Contador de Cliques -->
+        <div class="click-counter" id="click-counter">100/100</div>
+
+        <!-- Barra Transparente Atrás dos Botões -->
+        <div class="button-background"></div>
+
+        <!-- Botões com Efeito de Brilho Pulsante -->
+        <a href="league.html" class="glow-button league-button"></a>
+        <a href="friends.html" class="glow-button friends-button"></a>
+        <a href="ranking.html" class="glow-button ranking-button"></a>
+        <a href="tasks.html" class="glow-button tasks-button"></a>
+        <a href="wallet.html" class="glow-button wallet-button"></a>
+        <a href="games1.html" class="glow-button games-button"></a>
+
+        <!-- Botão Boost -->
+        <button class="glow-button booster-button" onclick="ativarBooster()">Boost</button>
+    </div>
+
+    <!-- Template da Imagem +1 e +2 para Clonar -->
+    <img id="plus-one-template" src="/Static/Images/plus-one.png" class="plus-one" style="display: none;">
+    <img id="plus-two-template" src="/Static/Images/plus-two.png" class="plus-two" style="display: none;">
+
+
+    <!-- Script do Firebase e Lógica do Jogo -->
+
+    <script>
+
+// Configuração do Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyBtpmuaG9KYmGcy6Fog_JBMM-QeLuBSdPQ",
+    authDomain: "telegramminiapp-466d4.firebaseapp.com",
+    projectId: "telegramminiapp-466d4",
+    storageBucket: "telegramminiapp-466d4.appspot.com",
+    messagingSenderId: "1067936945842",
+    appId: "1:1067936945842:web:452c1cdf8ad853eef95bab",
+    measurementId: "G-M24JKC1337"
+};
+
+// Inicializa o Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let pontos = 0;
+let boosterAtivo = false;
+let cliquesRestantes = 100;
+let username = "User"; // Você pode obter isso de um login
+let lastReset = null;
+
+// Função para carregar dados do usuário ao iniciar
+async function loadUserData() {
+    try {
+        const userDoc = await db.collection('users').doc(username).get();
+        if (userDoc.exists) {
+            const data = userDoc.data();
+            pontos = data.pontos || 0;
+            cliquesRestantes = data.cliquesRestantes || 100;
+            lastReset = data.lastReset || Date.now();
+
+            document.getElementById("points-box").innerText = pontos;
+            document.getElementById("click-counter").innerText = `${cliquesRestantes}/100`;
+
+            let energyPercentage = (cliquesRestantes / 100) * 100;
+            document.getElementById("energy-bar").style.width = energyPercentage + '%';
+
+            atualizarLiga();
+            verificarReset();
+        } else {
+            await criarNovoUsuario();
+        }
+    } catch (error) {
+        console.error("Erro ao carregar dados do usuário:", error);
+    }
+}
+
+// Função para criar um novo usuário
+async function criarNovoUsuario() {
+    lastReset = Date.now();
+    try {
+        await db.collection('users').doc(username).set({
+            pontos: pontos,
+            cliquesRestantes: cliquesRestantes,
+            ranking: "Bronze",
+            lastReset: lastReset
+        });
+    } catch (error) {
+        console.error("Erro ao criar novo usuário:", error);
+    }
+}
+
+// Função para exibir o efeito de corte da espada
+function exibirCorteEspada(x, y) {
+    const swordEffect = document.createElement('img');
+    swordEffect.src = '/Static/Images/sword-slash.gif'; // Caminho para o GIF do efeito de espada
+    swordEffect.classList.add('sword-slash'); // Adiciona a classe CSS para estilização
+    swordEffect.style.position = 'absolute';
+    swordEffect.style.left = `${x - 20}px`; // Ajuste para posicionar a imagem
+    swordEffect.style.top = `${y - 70}px`;  // Ajuste para posicionar a imagem
+    swordEffect.style.pointerEvents = 'none'; // Evita interferência com cliques
+    swordEffect.style.zIndex = 1000;
+
+    document.body.appendChild(swordEffect);
+
+    // Remove o efeito de corte após 1 segundo (ou o tempo do GIF)
+    setTimeout(() => {
+        swordEffect.remove();
+    }, 1000);
+}
+
+
+// Função para ganhar pontos
+function ganharPontos(event) {
+    if (cliquesRestantes <= 0) {
+        return;
+    }
+
+    let pontosAdicionar = boosterAtivo ? 2 : 1;
+    let cliquesRemover = boosterAtivo ? 2 : 1;
+
+    cliquesRestantes -= cliquesRemover;
+    cliquesRestantes = Math.max(0, cliquesRestantes);
+
+    pontos += pontosAdicionar;
+
+    document.getElementById("click-counter").innerText = `${cliquesRestantes}/100`;
+    document.getElementById("points-box").innerText = pontos;
+
+    let energyPercentage = (cliquesRestantes / 100) * 100;
+    document.getElementById("energy-bar").style.width = energyPercentage + '%';
+
+    // Coordenadas do clique/toque
+    const posX = event.clientX || event.touches[0].clientX;
+    const posY = event.clientY || event.touches[0].clientY;
+
+    // Animação "+1" ou "+2" no local do clique/toque
+    const plusTemplate = document.getElementById(boosterAtivo ? "plus-two-template" : "plus-one-template");
+    const plusClone = plusTemplate.cloneNode(true);
+    plusClone.style.display = "block";
+    plusClone.style.position = "absolute";
+    plusClone.style.left = `${posX - 10}px`; // Ajuste de 10px para a esquerda
+    plusClone.style.top = `${posY - 20}px`;  // Ajuste de 20px para cima
+
+    document.body.appendChild(plusClone);
+
+    // Animação de subida por 2 segundos
+    plusClone.animate(
+        [
+            { transform: 'translateY(0)', opacity: 1 },
+            { transform: 'translateY(-50px)', opacity: 0 }
+        ],
+        {
+            duration: 3000, // 3 segundos
+            easing: 'ease-out'
+        }
+    );
+
+    setTimeout(() => {
+        plusClone.remove();
+        exibirCorteEspada(posX, posY); // Chama a função para exibir o corte da espada
+    }, 2000);
+
+    // Animação da moeda indo para a `points-box`
+    const coin = document.createElement('div');
+    coin.classList.add('coin-image-moving');
+    coin.style.left = `${posX}px`;
+    coin.style.top = `${posY}px`;
+
+    document.body.appendChild(coin);
+
+    setTimeout(() => {
+        const pointsBox = document.getElementById("points-box");
+        const rect = pointsBox.getBoundingClientRect();
+        coin.style.left = `${rect.left + rect.width / 2}px`;
+        coin.style.top = `${rect.top + rect.height / 2}px`;
+    }, 100); // Pequeno atraso para animação suave
+
+    coin.addEventListener('transitionend', () => {
+        coin.remove();
+    });
+
+    atualizarLiga();
+
+    db.collection('users').doc(username).set({
+        pontos: pontos,
+        cliquesRestantes: cliquesRestantes,
+        ranking: document.getElementById("league-box").innerText,
+        lastReset: lastReset
+    });
+}
+
+// Função para ativar o efeito de pulso no círculo
+function ativarEfeitoPulse() {
+    const dogCircle = document.querySelector('.dog-circle');
+    dogCircle.classList.add('pulse');
+    setTimeout(() => {
+        dogCircle.classList.remove('pulse');
+    }, 200); // O tempo da animação de pulso
+}
+
+// Adiciona eventos para click e touch
+document.addEventListener('DOMContentLoaded', () => {
+    const dogCircle = document.querySelector('.dog-circle');
+
+    dogCircle.addEventListener('click', (event) => {
+        ganharPontos(event);
+        ativarEfeitoPulse();
+    });
+
+    dogCircle.addEventListener('touchstart', (event) => {
+        event.preventDefault(); // Evita o comportamento padrão do toque
+        ganharPontos(event);
+        ativarEfeitoPulse();
+    });
+});
+
+function atualizarLiga() {
+    const rankingElement = document.getElementById("league-box");
+    if (pontos < 10) {
+        rankingElement.innerText = "Bronze";
+    } else if (pontos < 20) {
+        rankingElement.innerText = "Silver";
+    } else if (pontos < 30) {
+        rankingElement.innerText = "Gold";
+    } else if (pontos < 40) {
+        rankingElement.innerText = "Diamond";
+    } else {
+        rankingElement.innerText = "Master";
+    }
+}
+
+function ativarBooster() {
+    boosterAtivo = true;
+    document.querySelector('.booster-button').disabled = true;
+}
+
+function verificarReset() {
+    const now = Date.now();
+    const hoursSinceReset = (now - lastReset) / (1000 * 60 * 60);
+
+    if (hoursSinceReset >= 3) {
+        resetarCliques();
+        lastReset = now;
+        db.collection('users').doc(username).update({
+            cliquesRestantes: cliquesRestantes,
+            lastReset: lastReset
+        });
+    } else {
+        const timeToNextReset = (3 - hoursSinceReset) * 60 * 60 * 1000;
+        setTimeout(() => {
+            resetarCliques();
+            lastReset = Date.now();
+            db.collection('users').doc(username).update({
+                cliquesRestantes: cliquesRestantes,
+                lastReset: lastReset
+            });
+        }, timeToNextReset);
+    }
+}
+
+function resetarCliques() {
+    cliquesRestantes = 100;
+    document.getElementById("click-counter").innerText = `${cliquesRestantes}/100`;
+    document.getElementById("energy-bar").style.width = '100%';
+    alert('Sua energia foi restaurada!');
+}
+
+window.addEventListener('load', loadUserData);
+</script>
+
+</body>
+</html>
